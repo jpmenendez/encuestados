@@ -11,6 +11,9 @@ var VistaAdministrador = function(modelo, controlador, elementos) {
   this.modelo.preguntaAgregada.suscribir(function() {
     contexto.reconstruirLista();
   });
+  this.modelo.preguntaEliminada.suscribir(function(){
+    contexto.reconstruirLista();
+  });
 };
 
 
@@ -18,6 +21,8 @@ VistaAdministrador.prototype = {
   //lista
   inicializar: function() {
     //llamar a los metodos para reconstruir la lista, configurar botones y validar formularios
+    this.configuracionDeBotones();
+    this.reconstruirLista();
   },
 
   construirElementoPregunta: function(pregunta){
@@ -25,6 +30,7 @@ VistaAdministrador.prototype = {
     var nuevoItem;
     //completar
     //asignar a nuevoitem un elemento li con clase "list-group-item", id "pregunta.id" y texto "pregunta.textoPregunta"
+    var nuevoItem = $("<li class='list-group-item' id='" + pregunta.id + "'></li>");
     var interiorItem = $('.d-flex');
     var titulo = interiorItem.find('h5');
     titulo.text(pregunta.textoPregunta);
@@ -49,6 +55,7 @@ VistaAdministrador.prototype = {
     var contexto = this;
 
     //asociacion de eventos a boton
+    // agregar pregunta
     e.botonAgregarPregunta.click(function() {
       var value = e.pregunta.val();
       var respuestas = [];
@@ -59,6 +66,13 @@ VistaAdministrador.prototype = {
       contexto.limpiarFormulario();
       contexto.controlador.agregarPregunta(value, respuestas);
     });
+
+    //eliminar pregunta
+    e.botonBorrarPregunta.click(function(){
+      var $id = $('.list-group-item.active').attr('id');
+      contexto.controlador.eliminarPregunta($id);
+    });
+
     //asociar el resto de los botones a eventos
   },
 
