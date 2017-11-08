@@ -8,7 +8,8 @@ var vistaAdmin = new VistaAdministrador(modelo, new Controlador(modelo), {
   'respuesta': $('#respuesta'),
   'formulario': $('localStorageForm'),
   'botonAgregarPregunta': $('#agregarPregunta'),
-  'muestraDeRespuestas': $('.panel-body')
+  'botonAgregarRespuesta': $('#agregarRespuesta'),
+  'muestraDeRespuestas': $('.panel-body'),
 });
 vistaAdmin.inicializar();
 var vistaUsuario = new VistaUsuario(modelo, new Controlador(modelo), {

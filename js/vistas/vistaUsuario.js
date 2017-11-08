@@ -11,6 +11,18 @@ var VistaUsuario = function(modelo, controlador, elementos) {
   this.modelo.preguntaAgregada.suscribir(function() {
     contexto.reconstruirLista();
   });
+  this.modelo.preguntaEliminada.suscribir(function(){
+    contexto.reconstruirLista();
+  });
+  this.modelo.nombrePreguntaEditado.suscribir(function(){
+    contexto.reconstruirLista();
+  });
+  this.modelo.todasLasPreguntasEliminadas.suscribir(function(){
+    contexto.reconstruirLista();
+  }),
+  this.modelo.votoAgregado.suscribir(function(){
+    contexto.reconstruirGrafico();
+  });
 };
 
 VistaUsuario.prototype = {
@@ -19,11 +31,11 @@ VistaUsuario.prototype = {
     this.reconstruirLista();
     var elementos = this.elementos;
     var contexto = this;
-    
+
     elementos.botonAgregar.click(function() {
-      contexto.agregarVotos(); 
+      contexto.agregarVotos();
     });
-      
+
     this.reconstruirGrafico();
   },
 
@@ -51,6 +63,8 @@ VistaUsuario.prototype = {
     preguntas.forEach(function(clave){
       //completar
       //agregar a listaPreguntas un elemento div con valor "clave.textoPregunta", texto "clave.textoPregunta", id "clave.id"
+      var tituloPregunta = $("<div id='" + clave.id + "' value='" + clave.textoPregunta + "'>" + clave.textoPregunta + "</div>");
+      listaPreguntas.append(tituloPregunta);
       var respuestas = clave.cantidadPorRespuesta;
       contexto.mostrarRespuestas(listaPreguntas,respuestas, clave);
     })
@@ -71,18 +85,19 @@ VistaUsuario.prototype = {
     });
   },
 
+  //agrega los votos del formulario en su respectiva pregunta
   agregarVotos: function(){
     var contexto = this;
     $('#preguntas').find('div').each(function(){
-        var nombrePregunta = $(this).attr('value')
-        var id = $(this).attr('id')
-        var pregunta = contexto.modelo.obtenerPregunta(nombrePregunta);
+        var nombrePregunta = $(this).attr('value');
+        var id = $(this).attr('id');
         var respuestaSeleccionada = $('input[name=' + id + ']:checked').val();
         $('input[name=' + id + ']').prop('checked',false);
-        contexto.controlador.agregarVoto(pregunta,respuestaSeleccionada);
+        contexto.controlador.agregarVoto(id,respuestaSeleccionada);
       });
   },
 
+  // dibuja el gráfico de torta
   dibujarGrafico: function(nombre, respuestas){
     var seVotoAlgunaVez = false;
     for(var i=1;i<respuestas.length;++i){
