@@ -30,11 +30,12 @@ VistaAdministrador.prototype = {
   //lista
   inicializar: function() {
     //llamar a los metodos para reconstruir la lista, configurar botones y validar formularios
+    this.descargarPreguntas();
     this.configuracionDeBotones();
     this.reconstruirLista();
-    this.descargarPreguntas();
+    this.validacionDeFormulario();
   },
-
+  // crea un nuevo item pregunta
   construirElementoPregunta: function(pregunta){
     var contexto = this;
     var nuevoItem;
@@ -49,6 +50,7 @@ VistaAdministrador.prototype = {
     return nuevoItem;
   },
 
+  // reconstruye la lista de Preguntas
   reconstruirLista: function() {
     var lista = this.elementos.lista;
     lista.html('');
@@ -74,8 +76,21 @@ VistaAdministrador.prototype = {
                             "<input class='form-control' type='text' name='option[]' />" +
                             "<button type='button' class='btn btn-default botonBorrarRespuesta' name='borrarRespuesta'><i class='fa fa-minus'></i></button>" +
                           "</div>"
-      $(nuevaRespuesta).insertBefore(e.botonAgregarRespuesta);
+      var $clone = $(nuevaRespuesta).insertBefore(e.botonAgregarRespuesta);
+      var $option = $clone.find('[name="option[]"]');
+      $('#localStorageForm').formValidation('addField', $option);
     });
+
+    //quita un elemento respuesta
+    $('body').on("click",'[name="borrarRespuesta"]',function(){
+       var $row = $(this).parent('.form-group.answer')
+
+       var $option = $row.find('[name="option[]"]');
+
+       $row.remove();
+      // Eliminar campo del formulario
+      $('#localStorageForm').formValidation('removeField', $option);
+    })
 
     // agregar pregunta
     e.botonAgregarPregunta.click(function() {
@@ -87,6 +102,7 @@ VistaAdministrador.prototype = {
         var textoRespuesta = $(this).val();
         respuestas.push(textoRespuesta);
       });
+      contexto.limpiarFormulario();
       contexto.controlador.agregarPregunta(value, respuestas);
 
     });
@@ -117,14 +133,63 @@ VistaAdministrador.prototype = {
         contexto.controlador.eliminarTodasLasPreguntas();
       }
     })
-
-    //quita un elemento respuesta
-    $('body').on("click",'[name="borrarRespuesta"]',function(){
-      $(this).parent('.form-group.answer').remove();
-    });
   },
 
   limpiarFormulario: function(){
     $('.form-group.answer.has-feedback.has-success').remove();
   },
+
+  validacionDeFormulario: function(){
+  $('#localStorageForm')
+    .formValidation({
+      framework: 'bootstrap',
+      icon: {
+        valid: 'glyphicon glyphicon-ok',
+        invalid: 'glyphicon glyphicon-remove',
+        validating: 'glyphicon glyphicon-refresh'
+      },
+      fields: {
+        question: {
+          validators: {
+            notEmpty: {
+              message: 'La pregunta no puede ser vacía'
+            }
+          }
+        },
+        'option[]': {
+          validators: {
+            notEmpty: {
+              message: 'La respuesta no puede ser vacía'
+            },
+            stringLength: {
+              max: 100,
+              message: 'La respuesta debe tener menos de 100 caracteres'
+            }
+          }
+        }
+      }
+    })
+
+    // Llamada después de agregar el campo
+    .on('added.field.fv', function(e, data) {
+      // data.field   --> nombre del campo
+      // data.element --> el nuevo elemento del campo
+      // data.options --> las nuevas opciones del campo
+
+      if (data.field === 'option[]') {
+        if ($('#localStorageForm').find(':visible[name="option[]"]').length >= 5) {
+          $('#localStorageForm').find('.botonAgregarRespuesta').attr('disabled', 'disabled');
+        }
+      }
+    })
+
+    // Llamada después de eliminar el campo
+    .on('removed.field.fv', function(e, data) {
+      if (data.field === 'option[]') {
+        if ($('#localStorageForm').find(':visible[name="option[]"]').length < 5) {
+          $('#localStorageForm').find('.botonAgregarRespuesta').removeAttr('disabled');
+        }
+      }
+    })
+  }
 }

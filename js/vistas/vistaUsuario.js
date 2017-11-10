@@ -13,12 +13,14 @@ var VistaUsuario = function(modelo, controlador, elementos) {
   });
   this.modelo.preguntaEliminada.suscribir(function(){
     contexto.reconstruirLista();
+    contexto.reconstruirGrafico();
   });
   this.modelo.nombrePreguntaEditado.suscribir(function(){
     contexto.reconstruirLista();
   });
   this.modelo.todasLasPreguntasEliminadas.suscribir(function(){
     contexto.reconstruirLista();
+    contexto.reconstruirGrafico();
   }),
   this.modelo.votoAgregado.suscribir(function(){
     contexto.reconstruirGrafico();
@@ -29,6 +31,7 @@ VistaUsuario.prototype = {
   //muestra la lista por pantalla y agrega el manejo del boton agregar
   inicializar: function() {
     this.reconstruirLista();
+
     var elementos = this.elementos;
     var contexto = this;
 
