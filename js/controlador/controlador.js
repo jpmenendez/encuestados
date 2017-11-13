@@ -10,18 +10,25 @@ Controlador.prototype = {
       this.modelo.agregarPregunta(pregunta, respuestas);
   },
   eliminarPregunta: function(id){
-    this.modelo.eliminarPregunta(id);
-  },
-  descargarPreguntasLocal: function(){
-    this.modelo.descargarPreguntasLocal();
+    var respuesta = window.confirm("¿Está seguro que desea borrar pregunta?");
+    if (respuesta) {
+      var $id = $('.list-group-item.active').attr('id');
+      this.modelo.eliminarPregunta($id);
+    }
   },
   agregarVoto: function(preguntaId, respuesta){
     this.modelo.agregarVoto(preguntaId, respuesta);
   },
-  editarNombrePregunta: function(id, nuevoNombre){
-    this.modelo.editarNombrePregunta(id, nuevoNombre);
+  editarNombrePregunta: function(id){
+    var nuevoNombre = prompt("Ingrese nuevo nombre de pregunta");
+    if (nuevoNombre != null) {
+      this.modelo.editarNombrePregunta(id, nuevoNombre);
+    }
   },
   eliminarTodasLasPreguntas(){
-    this.modelo.eliminarTodasLasPreguntas();
+    var respuesta = window.confirm("¿Está seguro que desea borrar todas las preguntas?");
+    if(respuesta){
+      this.modelo.eliminarTodasLasPreguntas();
+    }
   }
 };

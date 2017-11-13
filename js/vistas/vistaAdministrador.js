@@ -14,9 +14,6 @@ var VistaAdministrador = function(modelo, controlador, elementos) {
   this.modelo.preguntaEliminada.suscribir(function(){
     contexto.reconstruirLista();
   });
-  this.modelo.preguntasDescargadas.suscribir(function(){
-    contexto.reconstruirLista();
-  });
   this.modelo.nombrePreguntaEditado.suscribir(function(){
     contexto.reconstruirLista();
   });
@@ -30,7 +27,6 @@ VistaAdministrador.prototype = {
   //lista
   inicializar: function() {
     //llamar a los metodos para reconstruir la lista, configurar botones y validar formularios
-    this.descargarPreguntas();
     this.configuracionDeBotones();
     this.reconstruirLista();
     this.validacionDeFormulario();
@@ -60,11 +56,7 @@ VistaAdministrador.prototype = {
     }
   },
 
-  //descarga las preguntas de LocalStorage
-  descargarPreguntas: function(){
-    this.controlador.descargarPreguntasLocal();
-  },
-
+  //se configuran los botones
   configuracionDeBotones: function(){
     var e = this.elementos;
     var contexto = this;
@@ -109,29 +101,18 @@ VistaAdministrador.prototype = {
 
     // editar pregunta
     e.botonEditarPregunta.click(function(){
-      var nuevoNombre = prompt("Ingrese nuevo nombre de pregunta");
-      if (nuevoNombre != null) {
-        var $id = $('.list-group-item.active').attr('id');
-        contexto.controlador.editarNombrePregunta($id,nuevoNombre);
-      }
-
+      var $id = $('.list-group-item.active').attr('id');
+      contexto.controlador.editarNombrePregunta($id);
     });
 
     //eliminar pregunta
     e.botonBorrarPregunta.click(function(){
-      respuesta = window.confirm("¿Está seguro que desea borrar pregunta?");
-      if (respuesta) {
-        var $id = $('.list-group-item.active').attr('id');
-        contexto.controlador.eliminarPregunta($id);
-      }
+      contexto.controlador.eliminarPregunta();
     });
 
     // borrar todas las preguntas
     e.borrarTodo.click(function(){
-      respuesta = window.confirm("¿Está seguro que desea borrar todas las preguntas?");
-      if(respuesta){
-        contexto.controlador.eliminarTodasLasPreguntas();
-      }
+      contexto.controlador.eliminarTodasLasPreguntas();
     })
   },
 

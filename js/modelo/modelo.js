@@ -8,10 +8,10 @@ var Modelo = function() {
   //inicializacion de eventos
   this.preguntaAgregada = new Evento(this);
   this.preguntaEliminada = new Evento(this);
-  this.preguntasDescargadas = new Evento(this);
   this.votoAgregado = new Evento(this);
   this.nombrePreguntaEditado = new Evento(this);
   this.todasLasPreguntasEliminadas = new Evento(this);
+  this.descargarPreguntasLocal(); /** Inicializamos el evento que contiene los datos **/
 };
 
 Modelo.prototype = {
@@ -52,7 +52,7 @@ Modelo.prototype = {
         for (var j = 0; j <   this.preguntas[i].cantidadPorRespuesta.length; j++) {
           if (this.preguntas[i].cantidadPorRespuesta[j].textoRespuesta == respuesta) {
             this.preguntas[i].cantidadPorRespuesta[j].cantidad += 1;
-            this.guardarVotoLocal(preguntaId, respuesta);
+            this.guardarLocal();
             this.votoAgregado.notificar();
             return;
           }
@@ -66,7 +66,7 @@ Modelo.prototype = {
     for (var i = 0; i < this.preguntas.length; i++) {
       if (this.preguntas[i].id == id) {
           this.preguntas[i].textoPregunta = nuevoNombre;
-          this.guardarLocal(this.preguntas[i]);
+          this.guardarLocal();
           this.nombrePreguntaEditado.notificar();
           return;
       }
@@ -78,7 +78,7 @@ Modelo.prototype = {
     for (var i = 0; i < this.preguntas.length; i++) {
       if (this.preguntas[i].id == id) {
         this.preguntas.splice(i,1);
-        this.eliminarLocal(id);
+        this.guardarLocal();
         this.preguntaEliminada.notificar();
         return;
       }
@@ -88,42 +88,19 @@ Modelo.prototype = {
   // elimina todas las preguntas
   eliminarTodasLasPreguntas: function(){
     this.preguntas = [];
-    this.eliminarTodasLasPreguntasLocal();
+    this.guardarLocal();
     this.todasLasPreguntasEliminadas.notificar();
   },
 
-  //se guarda la pregunta en localStorage
+  //se guardan la preguntas en localStorage
   guardarLocal: function(nuevaPregunta){
-    localStorage.setItem('pregunta' + nuevaPregunta.id, JSON.stringify(nuevaPregunta));
-  },
-
-  // guarda un  voto en LocalStorage
-  guardarVotoLocal: function(preguntaId, respuesta){
-    var pregunta = JSON.parse(localStorage.getItem('pregunta' + preguntaId));
-    for (var i = 0; i < pregunta.cantidadPorRespuesta.length; i++) {
-      if (pregunta.cantidadPorRespuesta[i].textoRespuesta == respuesta) {
-        pregunta.cantidadPorRespuesta[i].cantidad += 1;
-        this.guardarLocal(pregunta);
-      }
-    }
-
-  },
-
-  //se elimina la pregunta en localStorage
-  eliminarLocal: function(id){
-    localStorage.removeItem('pregunta' + id);
-  },
-
-  //elimina todas las preguntas en localStorage
-  eliminarTodasLasPreguntasLocal: function(){
-    localStorage.clear();
+    localStorage.setItem('preguntas', JSON.stringify(this.preguntas));
   },
 
   // descarga preguntas guardadas en localStorage y las pushea en this.preguntas[]
   descargarPreguntasLocal: function(){
-    for (var a in localStorage) {
-      this.preguntas.push(JSON.parse(localStorage[a]));
+    if (localStorage.getItem('preguntas') !== null) {
+      this.preguntas = JSON.parse(localStorage.getItem('preguntas'));
     }
-    this.preguntasDescargadas.notificar();
   }
 };
